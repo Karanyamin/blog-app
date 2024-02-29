@@ -11,6 +11,7 @@ const Home = () => {
 
     const [blogs, setBlogs] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isError, setIsError] = useState(null);
 
     const [name, setName] = useState('Soprano');
 
@@ -22,19 +23,29 @@ const Home = () => {
     useEffect(() => {
         fetch('http://localhost:8000/blogs')
             .then((response) => {
+                console.log(response);
+                if (!response.ok){throw Error('Could not fetch blogs')}
                 return response.json();
             })
             .then((data) => {
                 setBlogs(data);
                 console.log(data);
                 setIsLoading(false);
-            });
+                setIsError(null);
+            })
+            .catch(err => {
+                setIsError(err.message);
+                console.log(err.message, 'in here');
+                setIsLoading(false);
+
+            })
     }, []);
 
 
 
     return ( 
         <div className="home"> 
+        {isError && <div>{isError}</div>}
         {isLoading && <div>Page is Loading</div>} 
         {
             blogs && <BlogList blogs={blogs} title='List of All Blogs' handleDelete={handleDelete} />
